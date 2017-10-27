@@ -229,6 +229,7 @@ with open('y', 'wb') as fp:
 """
 
 
+
 print('load X', time.time()-stime)
 with open ('X', 'rb') as fp:
     X = pickle.load(fp)
@@ -312,9 +313,7 @@ del model
 
 
 
-
 """
-
 
 loss_list = list(history.history['loss'])
 val_loss_list = list(history.history['val_loss'])
@@ -331,6 +330,8 @@ history_list = [loss_list, val_loss_list, acc_list, val_acc_list]
 with open('rnn_history','wb') as fp:
     pickle.dump(history_list, fp)
 
+
+
 with open('rnn_history','rb') as fp:
     history_list = pickle.load(fp)
 
@@ -341,6 +342,8 @@ plt.plot(history_list[1])
 plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
+plt.xlim(0, 80)
+plt.ylim(0, 3.5)
 plt.legend(['train', 'valid'], loc='upper left')
 plt.savefig('rnn_model_loss.png')
 plt.clf()
@@ -351,10 +354,28 @@ plt.plot(history_list[3])
 plt.title('model acc')
 plt.ylabel('acc')
 plt.xlabel('epoch')
+plt.xlim(0, 80)
+plt.ylim(0, 1)
 plt.legend(['train', 'valid'], loc='upper left')
 plt.savefig('rnn_model_acc.png')
 plt.clf()
+
+
+print('Train Loss')
+print(history_list[0])
+
+print('Valid Loss')
+print(history_list[1])
+
+
+print('Train Acc')
+print(history_list[2])
+
+
+print('Valid Acc')
+print(history_list[3])
 """
+
 
 """
 

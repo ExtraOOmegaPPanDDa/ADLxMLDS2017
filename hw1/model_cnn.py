@@ -293,6 +293,8 @@ X_train, X_valid = X[train_idx,:], X[valid_idx,:]
 y_train, y_valid = y[train_idx,:], y[valid_idx,:]
 
 
+
+
 epochs = 250
 patience = 10
 batch_size = 128
@@ -337,6 +339,8 @@ history_list = [loss_list, val_loss_list, acc_list, val_acc_list]
 with open('cnn_history','wb') as fp:
     pickle.dump(history_list, fp)
 
+
+
 with open('cnn_history','rb') as fp:
     history_list = pickle.load(fp)
 
@@ -347,6 +351,8 @@ plt.plot(history_list[1])
 plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
+plt.xlim(0, 80)
+plt.ylim(0, 3.5)
 plt.legend(['train', 'valid'], loc='upper left')
 plt.savefig('cnn_model_loss.png')
 plt.clf()
@@ -357,10 +363,155 @@ plt.plot(history_list[3])
 plt.title('model acc')
 plt.ylabel('acc')
 plt.xlabel('epoch')
+plt.xlim(0, 80)
+plt.ylim(0, 1)
 plt.legend(['train', 'valid'], loc='upper left')
 plt.savefig('cnn_model_acc.png')
 plt.clf()
 """
+
+
+"""
+print('Train Loss')
+print(history_list[0])
+
+print('Valid Loss')
+print(history_list[1])
+
+
+print('Train Acc')
+print(history_list[2])
+
+
+print('Valid Acc')
+print(history_list[3])
+
+"""
+
+
+"""
+def build_LSTM_model(max_sent_len, word_size, output_size):
+    
+    drop_out_ratio = 0.2
+
+
+    model = Sequential()
+
+    model.add(Conv1D(384, 
+                     padding = 'causal', 
+                     kernel_size = 6,
+                     input_shape=(max_sent_len, word_size)))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+
+
+    model.add(LSTM(256,
+                        dropout = drop_out_ratio,
+                        return_sequences=True))
+
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(TimeDistributed(Dense(output_size, activation='softmax')))
+    
+    model.compile(loss='categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'],
+                  sample_weight_mode='temporal')
+
+    return model
+
+
+
+
+
+
+
+
+epochs = 250
+patience = 10
+batch_size = 128
+
+model = build_LSTM_model(X.shape[1] , X.shape[2], y.shape[2])
+model.summary()
+
+
+earlystopping = EarlyStopping(monitor='val_loss', patience = patience, verbose=1, mode='min')
+
+
+history = model.fit(X_train, y_train, 
+                 epochs = epochs, 
+                 batch_size = batch_size,
+                 validation_data = (X_valid, y_valid),
+                 callbacks=[earlystopping])
+
+
+del model
+
+
+
+
+
+def build_BLSTM_model(max_sent_len, word_size, output_size):
+    
+    drop_out_ratio = 0.2
+
+
+    model = Sequential()
+
+    model.add(Conv1D(128, 
+                     padding = 'causal', 
+                     kernel_size = 6,
+                     input_shape=(max_sent_len, word_size)))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+
+
+    model.add(Bidirectional(LSTM(256,
+                        dropout = drop_out_ratio,
+                        return_sequences=True), merge_mode = 'ave'))
+
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(TimeDistributed(Dense(output_size, activation='softmax')))
+    
+    model.compile(loss='categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'],
+                  sample_weight_mode='temporal')
+
+    return model
+
+
+
+
+
+
+
+
+epochs = 250
+patience = 10
+batch_size = 128
+
+model = build_BLSTM_model(X.shape[1] , X.shape[2], y.shape[2])
+model.summary()
+
+
+earlystopping = EarlyStopping(monitor='val_loss', patience = patience, verbose=1, mode='min')
+
+
+history = model.fit(X_train, y_train, 
+                 epochs = epochs, 
+                 batch_size = batch_size,
+                 validation_data = (X_valid, y_valid),
+                 callbacks=[earlystopping])
+
+
+del model
+"""
+
+
 
 
 """

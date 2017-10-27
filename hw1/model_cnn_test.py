@@ -630,7 +630,7 @@ revised_result = sorted(revised_result)
 
 revised_result = [['id','phone_sequence']] + revised_result
 
-f = open(output_path, 'w', newline='')
+f = open(output_path, 'w')
 w = csv.writer(f)
 w.writerows(revised_result)
 f.close()

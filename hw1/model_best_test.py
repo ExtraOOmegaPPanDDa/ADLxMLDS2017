@@ -1057,7 +1057,7 @@ revised_result = sorted(revised_result)
 
 revised_result = [['id','phone_sequence']] + revised_result
 
-f = open('prediction.csv', 'w', newline='')
+f = open('prediction.csv', 'w')
 w = csv.writer(f)
 w.writerows(revised_result)
 f.close()
