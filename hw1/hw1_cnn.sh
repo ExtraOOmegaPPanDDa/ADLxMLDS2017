@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 model_cnn.py $1 $2
+python3 model_cnn_test.py $1 $2

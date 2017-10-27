@@ -66,8 +66,8 @@ f.close()
 
 phone_39_set_list = sorted(list(set(phone_39_list)))
 
-"""
 
+"""
 train_ids = []
 train_mfccs = []
 train_fbanks = []
@@ -228,7 +228,7 @@ with open('y', 'wb') as fp:
     pickle.dump(y, fp)
 """
 
-
+"""
 print('load X', time.time()-stime)
 with open ('X', 'rb') as fp:
     X = pickle.load(fp)
@@ -244,27 +244,21 @@ y = np.asarray(y)
 
 print('X_shape', X.shape, time.time()-stime)
 print('y_shape', y.shape, time.time()-stime)
+"""
 
 
-
-def build_CNN_model(max_sent_len, word_size, output_size):
+def build_RNN_model(max_sent_len, word_size, output_size):
     
     drop_out_ratio = 0.2
 
 
     model = Sequential()
 
-    model.add(Conv1D(512, 
-                     padding = 'causal', 
-                     kernel_size = 6,
-                     input_shape=(max_sent_len, word_size)))
-    model.add(BatchNormalization())
-    model.add(Dropout(drop_out_ratio))
-
-
-    model.add(SimpleRNN(512,
+    model.add(SimpleRNN(1024,
+                        input_shape = (max_sent_len, word_size), 
                         dropout = drop_out_ratio,
                         return_sequences=True))
+
 
     model.add(BatchNormalization())
     model.add(Dropout(drop_out_ratio))
@@ -280,7 +274,7 @@ def build_CNN_model(max_sent_len, word_size, output_size):
 
 
 
-
+"""
 
 
 
@@ -297,12 +291,12 @@ epochs = 250
 patience = 10
 batch_size = 128
 
-model = build_CNN_model(X.shape[1] , X.shape[2], y.shape[2])
+model = build_RNN_model(X.shape[1] , X.shape[2], y.shape[2])
 model.summary()
 
 
 earlystopping = EarlyStopping(monitor='val_loss', patience = patience, verbose=1, mode='min')
-checkpoint = ModelCheckpoint('hw1_cnn_model.hdf5',
+checkpoint = ModelCheckpoint('hw1_rnn_model.hdf5',
                              verbose=1,
                              save_best_only=True,
                              save_weights_only=True,
@@ -321,7 +315,11 @@ del model
 
 
 
-"""
+
+
+
+
+
 loss_list = list(history.history['loss'])
 val_loss_list = list(history.history['val_loss'])
 
@@ -334,10 +332,10 @@ val_acc_list = list(history.history['val_acc'])
 history_list = [loss_list, val_loss_list, acc_list, val_acc_list]
 
 
-with open('cnn_history','wb') as fp:
+with open('rnn_history','wb') as fp:
     pickle.dump(history_list, fp)
 
-with open('cnn_history','rb') as fp:
+with open('rnn_history','rb') as fp:
     history_list = pickle.load(fp)
 
 
@@ -348,7 +346,7 @@ plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'valid'], loc='upper left')
-plt.savefig('cnn_model_loss.png')
+plt.savefig('rnn_model_loss.png')
 plt.clf()
 
 
@@ -358,12 +356,12 @@ plt.title('model acc')
 plt.ylabel('acc')
 plt.xlabel('epoch')
 plt.legend(['train', 'valid'], loc='upper left')
-plt.savefig('cnn_model_acc.png')
+plt.savefig('rnn_model_acc.png')
 plt.clf()
 """
 
 
-"""
+
 test_ids = []
 test_mfccs = []
 test_fbanks = []
@@ -480,8 +478,8 @@ for i in range(len(test_ids)):
 X_test = np.asarray(X_test)
 
 
-model = build_CNN_model(X_test.shape[1] , X_test.shape[2], 39)
-model.load_weights('hw1_cnn_model.hdf5')
+model = build_RNN_model(X_test.shape[1] , X_test.shape[2], 39)
+model.load_weights('hw1_rnn_model.hdf5')
 
 
 batch_size = 128
@@ -634,6 +632,6 @@ f = open(output_path, 'w', newline='')
 w = csv.writer(f)
 w.writerows(revised_result)
 f.close()
-"""
+
 
 print('Time Taken:', time.time()-stime)

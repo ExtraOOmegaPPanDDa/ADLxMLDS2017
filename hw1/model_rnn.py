@@ -125,7 +125,7 @@ train_features = np.concatenate((train_mfccs,train_fbanks), axis=1)
 
 
 print('Get Train Label', time.time()-stime)
-f = open(os.path.join(data_path, '/label/train.lab'), 'r')
+f = open(os.path.join(data_path, 'label/train.lab'), 'r')
 ids = []
 count = 0
 for line in f:
@@ -228,7 +228,7 @@ with open('y', 'wb') as fp:
     pickle.dump(y, fp)
 """
 
-"""
+
 print('load X', time.time()-stime)
 with open ('X', 'rb') as fp:
     X = pickle.load(fp)
@@ -244,7 +244,7 @@ y = np.asarray(y)
 
 print('X_shape', X.shape, time.time()-stime)
 print('y_shape', y.shape, time.time()-stime)
-"""
+
 
 
 def build_RNN_model(max_sent_len, word_size, output_size):
@@ -271,10 +271,6 @@ def build_RNN_model(max_sent_len, word_size, output_size):
                   sample_weight_mode='temporal')
 
     return model
-
-
-
-"""
 
 
 
@@ -317,7 +313,7 @@ del model
 
 
 
-
+"""
 
 
 loss_list = list(history.history['loss'])
@@ -360,7 +356,7 @@ plt.savefig('rnn_model_acc.png')
 plt.clf()
 """
 
-
+"""
 
 test_ids = []
 test_mfccs = []
@@ -632,6 +628,6 @@ f = open(output_path, 'w', newline='')
 w = csv.writer(f)
 w.writerows(revised_result)
 f.close()
-
+"""
 
 print('Time Taken:', time.time()-stime)

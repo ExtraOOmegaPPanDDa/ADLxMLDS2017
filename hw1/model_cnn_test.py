@@ -66,8 +66,8 @@ f.close()
 
 phone_39_set_list = sorted(list(set(phone_39_list)))
 
-"""
 
+"""
 train_ids = []
 train_mfccs = []
 train_fbanks = []
@@ -228,7 +228,7 @@ with open('y', 'wb') as fp:
     pickle.dump(y, fp)
 """
 
-
+"""
 print('load X', time.time()-stime)
 with open ('X', 'rb') as fp:
     X = pickle.load(fp)
@@ -244,7 +244,7 @@ y = np.asarray(y)
 
 print('X_shape', X.shape, time.time()-stime)
 print('y_shape', y.shape, time.time()-stime)
-
+"""
 
 
 def build_CNN_model(max_sent_len, word_size, output_size):
@@ -283,7 +283,7 @@ def build_CNN_model(max_sent_len, word_size, output_size):
 
 
 
-
+"""
 np.random.seed(seed = 174646)
 
 train_valid_ratio = 0.9
@@ -321,7 +321,7 @@ del model
 
 
 
-"""
+
 loss_list = list(history.history['loss'])
 val_loss_list = list(history.history['val_loss'])
 
@@ -363,7 +363,7 @@ plt.clf()
 """
 
 
-"""
+
 test_ids = []
 test_mfccs = []
 test_fbanks = []
@@ -634,6 +634,6 @@ f = open(output_path, 'w', newline='')
 w = csv.writer(f)
 w.writerows(revised_result)
 f.close()
-"""
+
 
 print('Time Taken:', time.time()-stime)

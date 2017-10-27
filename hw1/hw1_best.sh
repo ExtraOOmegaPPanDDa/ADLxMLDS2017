@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 model_best.py $1 $2
+python3 model_best_test.py $1 $2
