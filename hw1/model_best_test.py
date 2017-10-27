@@ -801,6 +801,52 @@ def build_lastStack2_model(max_sent_len, word_size, output_size):
 
 
 
+def build_lastStack3_model(max_sent_len, word_size, output_size):
+    
+    drop_out_ratio = 0.4
+
+
+    model = Sequential()
+
+    model.add(Conv1D(128, 
+                     padding = 'causal', 
+                     kernel_size = 12,
+                     input_shape=(max_sent_len, word_size)))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 8))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 5))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Bidirectional(SimpleRNN(256,return_sequences=True),merge_mode='ave'))
+
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(TimeDistributed(Dense(output_size, activation='softmax')))
+    
+    model.compile(loss='categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'],
+                  sample_weight_mode='temporal')
+
+    return model
+
+
+
+
 
 
 print('Last Stacking')
@@ -813,10 +859,15 @@ model = build_lastStack2_model(X_last_stacks.shape[1] , X_last_stacks.shape[2], 
 model.load_weights('hw1_lastStack2_model.hdf5')
 last2_pred = model.predict(X_last_stacks, verbose = 1, batch_size = batch_size)
 
+model = build_lastStack3_model(X_last_stacks.shape[1] , X_last_stacks.shape[2], 39)
+model.load_weights('hw1_lastStack3_model.hdf5')
+last3_pred = model.predict(X_last_stacks, verbose = 1, batch_size = batch_size)
+
 
 
 X_output_stacks = np.concatenate((    last1_pred,
-                                      last2_pred
+                                      last2_pred,
+                                      last3_pred
                             ), axis=2)
 
 print(X_output_stacks.shape)
@@ -881,10 +932,74 @@ def build_Output_model(max_sent_len, word_size, output_size):
 
 
 
+
+
+
+
+
+
+def build_Output2_model(max_sent_len, word_size, output_size):
+    
+    drop_out_ratio = 0.5
+
+
+    model = Sequential()
+
+    model.add(Conv1D(128, 
+                     padding = 'causal', 
+                     kernel_size = 9,
+                     input_shape=(max_sent_len, word_size)))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 6))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 3))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Bidirectional(GRU(256,return_sequences=True),merge_mode='ave'))
+
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(TimeDistributed(Dense(output_size, activation='softmax')))
+    
+    model.compile(loss='categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'],
+                  sample_weight_mode='temporal')
+
+    return model
+
+
+
 print('Output Stacking')
 model = build_Output_model(X_output_stacks.shape[1] , X_output_stacks.shape[2], 39)
 model.load_weights('hw1_output_model.hdf5')
-res = model.predict(X_output_stacks, verbose = 1, batch_size = batch_size)
+out1_pred = model.predict(X_output_stacks, verbose = 1, batch_size = batch_size)
+
+model = build_Output2_model(X_output_stacks.shape[1] , X_output_stacks.shape[2], 39)
+model.load_weights('hw1_output2_model.hdf5')
+out2_pred = model.predict(X_output_stacks, verbose = 1, batch_size = batch_size)
+
+
+X_result_stacks = np.concatenate((  out1_pred,
+                                    out2_pred,
+                                ), axis=2)
+
+
+print(X_result_stacks.shape)
+
 
 
 #########################################
@@ -893,6 +1008,78 @@ res = model.predict(X_output_stacks, verbose = 1, batch_size = batch_size)
 #########################################
 
 
+
+
+
+#########################################
+############## STAGE 5 ##################
+############### START ###################
+#########################################
+
+
+
+
+def build_Result_model(max_sent_len, word_size, output_size):
+    
+    drop_out_ratio = 0.5
+
+
+    model = Sequential()
+
+    model.add(Conv1D(128, 
+                     padding = 'causal', 
+                     kernel_size = 8,
+                     input_shape=(max_sent_len, word_size)))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 6))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 4))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Bidirectional(LSTM(256,return_sequences=True),merge_mode='ave'))
+
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(TimeDistributed(Dense(output_size, activation='softmax')))
+    
+    model.compile(loss='categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'],
+                  sample_weight_mode='temporal')
+
+    return model
+
+
+
+print('Result Stacking')
+model = build_Result_model(X_result_stacks.shape[1] , X_result_stacks.shape[2], 39)
+model.load_weights('hw1_result_model.hdf5')
+res = model.predict(X_result_stacks, verbose = 1, batch_size = batch_size)
+
+
+#########################################
+############## STAGE 5 ##################
+###############  END  ###################
+#########################################
+
+
+
+#########################################
+############ BINARY2PHONE ###############
+#########################################
 
 
 res = np.argmax(res, axis = 2)
