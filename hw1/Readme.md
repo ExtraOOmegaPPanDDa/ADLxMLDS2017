@@ -16,12 +16,12 @@ MLDS HW1
 
 5.	rnn: simpleRNN
 
-	cnn: CNN + simpleRNN
+	cnn: Conv1d + simpleRNN
 
 	best: hw1_best_model_structure.png
 
 6.	best 於 Azure NC6 VM 上， GPU: 1 x Tesla K80，運行時間約 8 min
 
-7.	Kaggle Score (private/public)
+7.	Kaggle Edit Distance Score (private/public)
 
 	best: 6.99759/7.14689
