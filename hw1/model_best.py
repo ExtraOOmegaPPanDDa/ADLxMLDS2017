@@ -2087,6 +2087,52 @@ def build_Result_model(max_sent_len, word_size, output_size):
 
 
 
+def build_Result2_model(max_sent_len, word_size, output_size):
+    
+    drop_out_ratio = 0.5
+
+
+    model = Sequential()
+
+    model.add(Conv1D(128, 
+                     padding = 'causal', 
+                     kernel_size = 7,
+                     input_shape=(max_sent_len, word_size)))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 7))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 3))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Bidirectional(GRU(256,return_sequences=True),merge_mode='ave'))
+
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(TimeDistributed(Dense(output_size, activation='softmax')))
+    
+    model.compile(loss='categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'],
+                  sample_weight_mode='temporal')
+
+    return model
+
+
+
+
 
 
 
@@ -2135,8 +2181,197 @@ del model
 
 
 
+
+"""
+# result Stack2
+np.random.seed(seed = 4648)
+
+train_valid_ratio = 0.95
+indices = np.random.permutation(X_result_stacks.shape[0])
+train_idx, valid_idx = indices[:int(X_result_stacks.shape[0] * train_valid_ratio)], indices[int(X_result_stacks.shape[0] * train_valid_ratio):]
+X_result_stacks_train, X_result_stacks_valid = X_result_stacks[train_idx,:], X_result_stacks[valid_idx,:]
+y_result_stacks_train, y_result_stacks_valid = y_result_stacks[train_idx,:], y_result_stacks[valid_idx,:]
+
+
+
+
+epochs = 250
+patience = 10
+batch_size = 128
+
+model = build_Result2_model(X_result_stacks.shape[1] , X_result_stacks.shape[2], y_result_stacks.shape[2])
+model.summary()
+
+
+earlystopping = EarlyStopping(monitor='val_loss', patience = patience, verbose=1, mode='min')
+checkpoint = ModelCheckpoint('hw1_result2_model.hdf5',
+                             verbose=1,
+                             save_best_only=True,
+                             save_weights_only=True,
+                             monitor='val_loss',
+                             mode='min')
+
+
+history = model.fit(X_result_stacks_train, y_result_stacks_train, 
+                 epochs = epochs, 
+                 batch_size = batch_size,
+                 validation_data = (X_result_stacks_valid, y_result_stacks_valid),
+                 callbacks=[earlystopping,checkpoint])
+
+
+del model
+
+"""
+
+
+
+
+
+"""
+
+batch_size = 128
+model = build_Result_model(X_result_stacks.shape[1] , X_result_stacks.shape[2], y_result_stacks.shape[2])
+model.load_weights('hw1_result_model.hdf5')
+res1_pred = model.predict(X_result_stacks, batch_size = batch_size)
+
+model = build_Result2_model(X_result_stacks.shape[1] , X_result_stacks.shape[2], y_result_stacks.shape[2])
+model.load_weights('hw1_result2_model.hdf5')
+res2_pred = model.predict(X_result_stacks, batch_size = batch_size)
+
+
+
+
+X_final_stacks = np.concatenate((   res1_pred,
+                                    res2_pred,
+                                ), axis=2)
+
+
+print(X_final_stacks.shape)
+
+
+
+print('Dump X_final_stacks', time.time()-stime)
+with open('X_final_stacks', 'wb') as fp:
+    pickle.dump(X_final_stacks, fp)
+"""
+
+
 #########################################
 ############## STAGE 5 ##################
+###############  END  ###################
+#########################################
+
+
+#########################################
+############## STAGE 6 ##################
+############### START ###################
+#########################################
+
+"""
+
+print('load X_final_stacks', time.time()-stime)
+with open ('X_final_stacks', 'rb') as fp:
+    X_final_stacks = pickle.load(fp)
+
+print('load y_final_stacks', time.time()-stime)    
+with open ('y', 'rb') as fp:
+    y_final_stacks = pickle.load(fp)
+
+X_final_stacks = np.asarray(X_final_stacks)
+y_final_stacks = np.asarray(y_final_stacks)
+"""
+
+
+
+def build_Final_model(max_sent_len, word_size, output_size):
+    
+    drop_out_ratio = 0.5
+
+
+    model = Sequential()
+
+    model.add(Conv1D(128, 
+                     padding = 'causal', 
+                     kernel_size = 9,
+                     input_shape=(max_sent_len, word_size)))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 5))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 3))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Bidirectional(LSTM(256,return_sequences=True),merge_mode='ave'))
+
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(TimeDistributed(Dense(output_size, activation='softmax')))
+    
+    model.compile(loss='categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'],
+                  sample_weight_mode='temporal')
+
+    return model
+
+
+
+
+
+"""
+# final Stack
+np.random.seed(seed = 484466)
+
+train_valid_ratio = 0.95
+indices = np.random.permutation(X_final_stacks.shape[0])
+train_idx, valid_idx = indices[:int(X_final_stacks.shape[0] * train_valid_ratio)], indices[int(X_final_stacks.shape[0] * train_valid_ratio):]
+X_final_stacks_train, X_final_stacks_valid = X_final_stacks[train_idx,:], X_final_stacks[valid_idx,:]
+y_final_stacks_train, y_final_stacks_valid = y_final_stacks[train_idx,:], y_final_stacks[valid_idx,:]
+
+
+
+
+epochs = 250
+patience = 10
+batch_size = 128
+
+model = build_Final_model(X_final_stacks.shape[1] , X_final_stacks.shape[2], y_final_stacks.shape[2])
+model.summary()
+
+
+earlystopping = EarlyStopping(monitor='val_loss', patience = patience, verbose=1, mode='min')
+checkpoint = ModelCheckpoint('hw1_final_model.hdf5',
+                             verbose=1,
+                             save_best_only=True,
+                             save_weights_only=True,
+                             monitor='val_loss',
+                             mode='min')
+
+
+history = model.fit(X_final_stacks_train, y_final_stacks_train, 
+                 epochs = epochs, 
+                 batch_size = batch_size,
+                 validation_data = (X_final_stacks_valid, y_final_stacks_valid),
+                 callbacks=[earlystopping,checkpoint])
+
+
+del model
+"""
+
+#########################################
+############## STAGE 6 ##################
 ###############  END  ###################
 #########################################
 

@@ -1063,15 +1063,136 @@ def build_Result_model(max_sent_len, word_size, output_size):
     return model
 
 
+def build_Result2_model(max_sent_len, word_size, output_size):
+    
+    drop_out_ratio = 0.5
+
+
+    model = Sequential()
+
+    model.add(Conv1D(128, 
+                     padding = 'causal', 
+                     kernel_size = 7,
+                     input_shape=(max_sent_len, word_size)))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 7))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 3))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Bidirectional(GRU(256,return_sequences=True),merge_mode='ave'))
+
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(TimeDistributed(Dense(output_size, activation='softmax')))
+    
+    model.compile(loss='categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'],
+                  sample_weight_mode='temporal')
+
+    return model
+
+
+
 
 print('Result Stacking')
 model = build_Result_model(X_result_stacks.shape[1] , X_result_stacks.shape[2], 39)
 model.load_weights('hw1_result_model.hdf5')
-res = model.predict(X_result_stacks, verbose = 1, batch_size = batch_size)
+res_pred1 = model.predict(X_result_stacks, verbose = 1, batch_size = batch_size)
 
+model = build_Result2_model(X_result_stacks.shape[1] , X_result_stacks.shape[2], 39)
+model.load_weights('hw1_result2_model.hdf5')
+res_pred2 = model.predict(X_result_stacks, verbose = 1, batch_size = batch_size)
+
+
+X_final_stacks = np.concatenate((   res_pred1,
+                                    res_pred2,
+                                ), axis=2)
+
+
+print(X_final_stacks.shape)
 
 #########################################
 ############## STAGE 5 ##################
+###############  END  ###################
+#########################################
+
+
+#########################################
+############## STAGE 6 ##################
+############### START ###################
+#########################################
+
+
+
+def build_Final_model(max_sent_len, word_size, output_size):
+    
+    drop_out_ratio = 0.5
+
+
+    model = Sequential()
+
+    model.add(Conv1D(128, 
+                     padding = 'causal', 
+                     kernel_size = 9,
+                     input_shape=(max_sent_len, word_size)))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 5))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+
+    model.add(Conv1D(128, 
+                     padding = 'causal',
+                     kernel_size = 3))
+    model.add(Activation(PReLU()))
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(Bidirectional(LSTM(256,return_sequences=True),merge_mode='ave'))
+
+    model.add(BatchNormalization())
+    model.add(Dropout(drop_out_ratio))
+    
+    model.add(TimeDistributed(Dense(output_size, activation='softmax')))
+    
+    model.compile(loss='categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'],
+                  sample_weight_mode='temporal')
+
+    return model
+
+
+
+
+print('Fianl Stacking')
+model = build_Final_model(X_final_stacks.shape[1] , X_final_stacks.shape[2], 39)
+model.load_weights('hw1_final_model.hdf5')
+res = model.predict(X_final_stacks, verbose = 1, batch_size = batch_size)
+
+
+#########################################
+############## STAGE 6 ##################
 ###############  END  ###################
 #########################################
 
