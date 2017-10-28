@@ -67,7 +67,7 @@ f.close()
 phone_39_set_list = sorted(list(set(phone_39_list)))
 
 
-"""
+
 train_ids = []
 train_mfccs = []
 train_fbanks = []
@@ -226,7 +226,6 @@ with open('X', 'wb') as fp:
 print('Dump y', time.time()-stime)
 with open('y', 'wb') as fp:
     pickle.dump(y, fp)
-"""
 
 
 
