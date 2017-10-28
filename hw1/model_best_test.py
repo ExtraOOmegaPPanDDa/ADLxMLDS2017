@@ -1185,7 +1185,7 @@ def build_Final_model(max_sent_len, word_size, output_size):
 
 
 
-print('Fianl Stacking')
+print('Final Stacking')
 model = build_Final_model(X_final_stacks.shape[1] , X_final_stacks.shape[2], 39)
 model.load_weights('hw1_final_model.hdf5')
 res = model.predict(X_final_stacks, verbose = 1, batch_size = batch_size)
@@ -1216,7 +1216,7 @@ for i in range(res.shape[0]):
 ############# SMOOTHING #################
 #########################################
 
-smooth_range = 3
+smooth_range = 2
 
 for i in range(res.shape[0]):
     for j in range(res.shape[1]):
