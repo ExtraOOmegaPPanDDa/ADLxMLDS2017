@@ -53,7 +53,7 @@ MLDS HW1
 
 ---
 
-6.	best 於 Azure NC6 VM 上， GPU: 1 x Tesla K80，運行時間約 8 min
+7.	best 於 Azure NC6 VM 上， GPU: 1 x Tesla K80，運行時間約 8 min
 	
 	如果是剛啟動 VM 第一次跑 hw1_best.sh，時間有可能超過十分鐘
 
@@ -89,7 +89,7 @@ MLDS HW1
 
 ---
 
-7.	Kaggle Edit Distance Score (private/public)
+8.	Kaggle Edit Distance Score (private/public)
 
 	best: 6.99759/7.14689
 
