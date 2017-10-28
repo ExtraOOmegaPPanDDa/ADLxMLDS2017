@@ -88,7 +88,7 @@ MLDS HW1
 			sys 2m9.129s
 
 
-	=> < span style="color:red;"> 如果能按照 rnn、cnn、best 的順序來跑，則應該全部都能壓在十分鐘之內 < /span>
+	=> <span style="color:red;"> 如果能按照 rnn、cnn、best 的順序來跑，則應該全部都能壓在十分鐘之內 </span>
 
 ---
 
