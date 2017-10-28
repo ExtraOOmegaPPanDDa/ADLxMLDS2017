@@ -61,7 +61,7 @@ MLDS HW1
 
 	-> 使用 Microsoft Azure NC6
 
-	-> 停止 VM
+	-> 停止 VM、解除配置
 
 	-> 啟動 VM
 
@@ -86,6 +86,9 @@ MLDS HW1
 			user 7m22.043s
 
 			sys 2m9.129s
+
+
+	=> < span style="color:red;"> 如果能按照 rnn、cnn、best 的順序來跑，則應該全部都能壓在十分鐘之內 < /span>
 
 ---
 
