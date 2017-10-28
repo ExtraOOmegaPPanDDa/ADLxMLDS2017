@@ -1216,7 +1216,7 @@ for i in range(res.shape[0]):
 ############# SMOOTHING #################
 #########################################
 
-smooth_range = 2
+smooth_range = 3
 
 for i in range(res.shape[0]):
     for j in range(res.shape[1]):
