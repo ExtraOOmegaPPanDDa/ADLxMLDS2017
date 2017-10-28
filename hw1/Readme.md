@@ -21,6 +21,41 @@ MLDS HW1
 	best: hw1_best_model_structure.png
 
 6.	best 於 Azure NC6 VM 上， GPU: 1 x Tesla K80，運行時間約 8 min
+	
+	如果是剛啟動 VM 第一次跑 hw1_best.sh，時間有可能超過十分鐘
+
+	第二次和之後跑就會順順的，可以在十分鐘之內
+
+	-> 使用 Microsoft Azure NC6
+
+	-> 停止 VM
+
+	-> 啟動 VM
+
+	-> ssh 連接 VM 並 cd 至 hw1
+
+	-> 第一次執行 time ./hw1_best.sh data/ prediction.csv
+
+	-> 第一次結果如下
+
+			real 10m19.970s
+
+			user 7m22.726s
+
+			sys 2m11.134s
+
+	-> 第二次執行 time ./hw1_best.sh data/ prediction.csv
+
+	-> 第二次結果如下
+
+			real 7m48.842s
+
+			user 7m22.043s
+
+			sys 2m9.129s
+
+
+
 
 7.	Kaggle Edit Distance Score (private/public)
 
