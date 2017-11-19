@@ -68,8 +68,9 @@ for line in f:
 
 attention_bool = False
 match_test_bool = False
+scheduled_sampling_bool = True
 
-model = hw2_model.VCG_model(n_vocabs=len(vocabs_dict), for_testing = True, attention = attention_bool, match_test = match_test_bool)
+model = hw2_model.VCG_model(n_vocabs=len(vocabs_dict), for_testing = True, attention = attention_bool, match_test = match_test_bool, scheduled_sampling = scheduled_sampling_bool)
 
 with tf.Session() as sess:
     

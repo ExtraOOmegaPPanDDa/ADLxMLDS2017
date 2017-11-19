@@ -121,11 +121,13 @@ inv_vocabs_dict = {v:k for k, v in vocabs_dict.items()}
 
 attention_bool = False
 match_test_bool = False
+scheduled_sampling_bool = True
 
-model = hw2_model.VCG_model(n_vocabs=len(vocabs_dict), for_testing = False, attention = attention_bool, match_test = match_test_bool)
+
+model = hw2_model.VCG_model(n_vocabs=len(vocabs_dict), for_testing = False, attention = attention_bool, match_test = match_test_bool, scheduled_sampling = scheduled_sampling_bool)
 max_sent_len = model.max_sent_len
 
-epochs = 351
+epochs = 121
 
 loss_record = []
 epoch_time_record = []
@@ -137,7 +139,7 @@ with tf.Session() as sess:
     
     saver = tf.train.Saver(tf.global_variables(), max_to_keep = 2)
 
-    # scheduled_sampling_ratio = 0
+    scheduled_sampling_ratio = 0
 
     for epoch in range(epochs):
         
@@ -153,13 +155,12 @@ with tf.Session() as sess:
         start_idx = idx
         end_idx = start_idx + model.batch_size
 
-        # scheduled_sampling_ratio = scheduled_sampling_ratio + 1/epochs
+        scheduled_sampling_ratio = scheduled_sampling_ratio + 1/epochs
+        if scheduled_sampling_ratio > 1:
+            scheduled_sampling_ratio = 1
+
         
         while(1):
-
-            # scheduled_sampling_point = np.random.binomial(1, scheduled_sampling_ratio)
-            # print(scheduled_sampling_ratio)
-            # print(scheduled_sampling_point)
             
             batch_ids = ids[start_idx:end_idx]
             batch_captions = captions[start_idx:end_idx]
@@ -167,6 +168,15 @@ with tf.Session() as sess:
             batch_feats = []
             batch_feat_masks = []
             for i in range(len(batch_ids)):
+
+                scheduled_sampling_point = np.random.binomial(1, scheduled_sampling_ratio)
+                # print(scheduled_sampling_ratio)
+                # print(scheduled_sampling_point)
+
+                scheduled_sampling_mask1 = np.zeros((model.batch_size, model.layer_dim)) + scheduled_sampling_point
+                scheduled_sampling_mask2 = np.zeros((model.batch_size, model.layer_dim)) + (1 - scheduled_sampling_point)
+                
+
                 feat = np.load(os.path.join(train_feat_path, batch_ids[i] + '.npy'))
                 batch_feats.append(feat)
                 batch_feat_masks.append(np.ones(feat.shape[0]))
@@ -242,7 +252,9 @@ with tf.Session() as sess:
                                            model.feat: batch_feats,
                                            model.feat_mask: batch_feat_masks,
                                            model.caption: batch_selected_captions,
-                                           model.caption_mask: batch_selected_caption_masks
+                                           model.caption_mask: batch_selected_caption_masks,
+                                           model.scheduled_sampling_mask1: scheduled_sampling_mask1,
+                                           model.scheduled_sampling_mask2: scheduled_sampling_mask2
                                            })
 
             print("Epoch:", epoch, str(end_idx) + '/' + str(len(ids)), "Loss:", train_loss, 'Time:', time.time() - stime)

@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 
 class VCG_model():
-    def __init__(self, n_vocabs, for_testing = False, attention = False, match_test = False):
+    def __init__(self, n_vocabs, for_testing = False, attention = False, match_test = False, scheduled_sampling = False):
         
         self.feat_dim = 4096
         self.frame_dim  = 80
@@ -40,6 +40,9 @@ class VCG_model():
             
             self.caption = tf.placeholder(tf.int32, [self.batch_size, self.max_sent_len + 1])
             self.caption_mask = tf.placeholder(tf.float32, [self.batch_size, self.max_sent_len + 1])
+
+            self.scheduled_sampling_mask1 = tf.placeholder(tf.float32, [self.batch_size, self.layer_dim])
+            self.scheduled_sampling_mask2 = tf.placeholder(tf.float32, [self.batch_size, self.layer_dim])
             
             feat_flatten = tf.reshape(self.feat, [-1, self.feat_dim]) 
             feat_embed = tf.nn.xw_plus_b(feat_flatten, self.encode_w, self.encode_b)
@@ -84,11 +87,18 @@ class VCG_model():
                     sub_loss = tf.reduce_mean(cross_entropy)
                     loss += sub_loss
 
+                    
                     if match_test:
                         step_embed = tf.nn.embedding_lookup(self.word_embed, max_prob_index)
 
                     else:
                         step_embed = tf.nn.embedding_lookup(self.word_embed, self.caption[:, i + 1])
+
+
+                    if scheduled_sampling:
+                        step_embed_from_model = tf.nn.embedding_lookup(self.word_embed, max_prob_index)
+                        step_embed_reference = tf.nn.embedding_lookup(self.word_embed, self.caption[:, i + 1])
+                        step_embed = self.scheduled_sampling_mask1 * step_embed_from_model + self.scheduled_sampling_mask2 * step_embed_reference
                         
                         
                     
