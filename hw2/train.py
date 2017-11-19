@@ -120,7 +120,7 @@ inv_vocabs_dict = {v:k for k, v in vocabs_dict.items()}
 
 
 attention_bool = True
-match_test_bool = True
+match_test_bool = False
 
 model = hw2_model.VCG_model(n_vocabs=len(vocabs_dict), for_testing = False, attention = attention_bool, match_test = match_test_bool)
 max_sent_len = model.max_sent_len
