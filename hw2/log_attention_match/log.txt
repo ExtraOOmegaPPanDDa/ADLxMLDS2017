@@ -1,0 +1,12 @@
+self.feat_dim = 4096
+self.frame_dim  = 80
+self.max_sent_len = 15
+
+self.batch_size = 48        
+self.layer_dim = 512
+self.lr = 0.001
+
+epochs = 351
+
+Final Loss: 26.488
+Average Epoch: 44.43754
